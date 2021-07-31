@@ -10,6 +10,8 @@ const data = [
 function App() {
   const [isCheck, setIsCheck] = useState([]);
   const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isShow, setIsShow] = useState(false);
+  const [valueFilter, setvalueFilter] = useState("");
   const test = data.map((obj, index) => ({
     ...obj,
     status: isCheck[index]
@@ -17,6 +19,7 @@ function App() {
 
   console.log('testtttttttttttttttt', test);
   console.log('isCheck', isCheck);
+  console.log('isShow', isShow);
 
   const handleClick = e => {
     const { id, checked } = e.target;
@@ -29,6 +32,7 @@ function App() {
 
   const handleSelectAll = e => {
     setIsCheckAll(!isCheckAll);
+    console.log('isCheckAll luar if ', isCheckAll);
     setIsCheck(data.map(li => li.groupId));
     if (isCheckAll) {
       console.log('isCheckAll dalam if ', isCheckAll);
@@ -47,39 +51,67 @@ function App() {
     );
   };
 
+  function getFilterUserByName(rows) {
+    return rows.filter(
+      (row) =>
+        row.groupName
+          .toLowerCase()
+          .indexOf(valueFilter.toLowerCase()) > -1
+    );
+  }
+
   return (
     <>
-      <div style={{ margin: "20px 200px" }}>
+      <div style={{ margin: "20px 200px", position: "relative", height: '100vh' }}
+        onClick={(e) => {
+          // e.stopPropagation();
+          setIsShow(false);
+        }}
+      >
         <div style={{ margin: "20px 0px" }}>
           coba-coba di weekend
         </div>
-        <div>
-          <Checkbox
-            type="checkbox"
-            name="selectAll"
-            id="selectAll"
-            handleClick={handleSelectAll}
-            isChecked={isCheckAll}
-          // value={valueFilter}
-          />
-          Select all group
-          {
-            data.map(({ groupId, groupName }) => {
-              return (
-                <div style={{ display: 'flex' }} key={groupId}>
+        <div style={{ position: 'absolute', zIndex: 10, top: '20px' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsShow(true)
+          }}
+        >
+          <input type="text" placeholder="ayo pilih dulu" onChange={(e) => setvalueFilter(e.target.value)} />
+          <div>
+            {
+              isShow === true && (
+                <>
                   <Checkbox
-                    id={groupId}
                     type="checkbox"
-                    handleClick={handleClick}
-                    isChecked={isCheck.includes(groupId)}
+                    name="selectAll"
+                    id="selectAll"
+                    handleClick={handleSelectAll}
+                    isChecked={isCheckAll}
+                    value={valueFilter}
                   />
-                  <div style={{ margin: '4px 0px' }}>
-                    {groupName}
-                  </div>
-                </div>
-              );
-            })
-          }
+                  Select all group
+                  {
+                    getFilterUserByName(data || []).map(({ groupId, groupName }) => {
+                      return (
+                        <div style={{ display: 'flex' }} key={groupId}>
+                          <Checkbox
+                            id={groupId}
+                            type="checkbox"
+                            handleClick={handleClick}
+                            isChecked={isCheck.includes(groupId)}
+                          />
+                          <div style={{ margin: '4px 0px' }}>
+                            {groupName}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </>
+              )
+            }
+          </div>
         </div>
       </div>
     </>
